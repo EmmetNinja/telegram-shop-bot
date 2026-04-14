@@ -13,15 +13,15 @@
 ---
 
 > ### 🔥 Нужна полная версия?
-> **[telegram-shop-bot-pro](https://github.com/EmmetNinja/telegram-shop-bot-pro)** — CryptoBot · Webhook + FastAPI · Рассылка · Экспорт Excel · Throttling · Loguru
+> **[telegram-shop-bot-pro](https://boosty.to/botbase/posts/69e7812d-f033-4359-a6c8-9617c439608c)** — CryptoBot · Webhook + FastAPI · Рассылка · Экспорт Excel · Throttling · Loguru
 >
-> **[Купить за 4 900 ₽ на Boosty →](https://boosty.to/emmet)**
+> **[Купить за 4 900 ₽ на Boosty →](https://boosty.to/botbase/posts/69e7812d-f033-4359-a6c8-9617c439608c)**
 
 ---
 
 ## Возможности
 
-| Функция | Бесплатно | [Pro](https://boosty.to/emmet) |
+| Функция | Бесплатно | [Pro](https://boosty.to/botbase/posts/69e7812d-f033-4359-a6c8-9617c439608c) |
 |---|:---:|:---:|
 | Каталог с категориями и пагинацией | ✅ | ✅ |
 | Корзина | ✅ | ✅ |
@@ -130,7 +130,7 @@ SQLite in-memory — PostgreSQL не нужен для запуска тесто
 
 **[telegram-shop-bot-pro](https://github.com/EmmetNinja/telegram-shop-bot-pro)** — расширенная версия с CryptoBot, Webhook, рассылкой, экспортом Excel и throttling.
 
-**[Купить за 4 900 ₽ на Boosty →](https://boosty.to/emmet)**
+**[Купить за 4 900 ₽ на Boosty →](https://)**
 
 ## Лицензия
 
