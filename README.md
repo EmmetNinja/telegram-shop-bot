@@ -15,7 +15,7 @@
 > ### 🔥 Нужна полная версия?
 > **[telegram-shop-bot-pro](https://boosty.to/botbase/posts/69e7812d-f033-4359-a6c8-9617c439608c)** — CryptoBot · Webhook + FastAPI · Рассылка · Экспорт Excel · Throttling · Loguru
 >
-> **[Купить за на Boosty →](https://boosty.to/botbase/posts/69e7812d-f033-4359-a6c8-9617c439608c)**
+> **[Купить на Boosty →](https://boosty.to/botbase/posts/69e7812d-f033-4359-a6c8-9617c439608c)**
 
 ---
 
