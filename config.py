@@ -1,36 +1,61 @@
 """
-Конфигурация бота: токен, список администраторов, настройки цен и платежей.
-Значения подставляются из переменных окружения или .env (см. python-dotenv).
+Конфигурация на pydantic-settings (читает .env и переменные окружения).
 """
 from __future__ import annotations
 
-import os
-from pathlib import Path
-
-from dotenv import load_dotenv
-
-# Загружаем .env из корня проекта (рядом с main.py)
-load_dotenv(Path(__file__).resolve().parent / ".env")
-
-BOT_TOKEN: str = os.getenv("BOT_TOKEN", "")
-
-# Список user_id администраторов через запятую: "123,456"
-_admin_raw = os.getenv("ADMIN_IDS", "")
-ADMIN_IDS: list[int] = [
-    int(x.strip()) for x in _admin_raw.split(",") if x.strip().isdigit()
-]
-
-# Валюта по умолчанию для отображения цен в каталоге (если заданы оба типа цен)
-DEFAULT_PRICE_DISPLAY: str = os.getenv("DEFAULT_PRICE_DISPLAY", "stars")  # stars | rub
-
-# Минимальная сумма заказа в звёздах (Telegram Stars), 0 — без ограничения
-MIN_ORDER_STARS: int = int(os.getenv("MIN_ORDER_STARS", "0"))
-
-# Заглушка ЮКасса: в продакшене сюда подставляют shop_id / secret из личного кабинета
-YOOKASSA_SHOP_ID: str = os.getenv("YOOKASSA_SHOP_ID", "")
-YOOKASSA_SECRET_KEY: str = os.getenv("YOOKASSA_SECRET_KEY", "")
+from functools import lru_cache
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-def is_admin(user_id: int) -> bool:
-    """Проверка, входит ли пользователь в список администраторов."""
-    return user_id in ADMIN_IDS
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    # Bot
+    bot_token: str = Field(..., alias="BOT_TOKEN")
+    admin_ids: str = Field(default="", alias="ADMIN_IDS")
+
+    # Database
+    database_url: str = Field(
+        ...,
+        alias="DATABASE_URL",
+        description="postgresql+asyncpg://user:pass@host:5432/dbname",
+    )
+
+    # Redis (FSM)
+    redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")
+
+    # YooKassa
+    yookassa_shop_id: str = Field(default="", alias="YOOKASSA_SHOP_ID")
+    yookassa_secret_key: str = Field(default="", alias="YOOKASSA_SECRET_KEY")
+    yookassa_return_url: str = Field(
+        default="https://t.me",
+        alias="YOOKASSA_RETURN_URL",
+    )
+
+    # Catalog
+    catalog_page_size: int = Field(default=5, alias="CATALOG_PAGE_SIZE")
+
+    @property
+    def admin_id_set(self) -> set[int]:
+        if not self.admin_ids.strip():
+            return set()
+        out: set[int] = set()
+        for part in self.admin_ids.split(","):
+            part = part.strip()
+            if part and part.isdigit():
+                out.add(int(part))
+        return out
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+def reset_settings_cache() -> None:
+    get_settings.cache_clear()

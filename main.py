@@ -1,5 +1,5 @@
 """
-Точка входа: запуск long polling, подключение БД, middleware и роутеров.
+Точка входа: long polling (PostgreSQL + Redis FSM).
 """
 from __future__ import annotations
 
@@ -10,13 +10,12 @@ import sys
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage
 
-import config
-from bot.database.db import Database
-from bot.handlers import admin, user
-from bot.middlewares.auth import AdminMiddleware
-from bot.middlewares.db_middleware import DbMiddleware
+from bot.db import create_engine, create_session_factory
+from bot.handlers import setup_routers
+from bot.middlewares import AdminMiddleware, DbMiddleware, SettingsMiddleware
+from config import get_settings
 
 
 async def main() -> None:
@@ -24,33 +23,33 @@ async def main() -> None:
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
-    if not config.BOT_TOKEN:
-        logging.error("Задайте BOT_TOKEN в .env или переменных окружения.")
+    settings = get_settings()
+    if not settings.bot_token:
+        logging.error("Задайте BOT_TOKEN в .env")
         sys.exit(1)
 
+    engine = create_engine(settings)
+    session_factory = create_session_factory(engine)
+
     bot = Bot(
-        token=config.BOT_TOKEN,
+        token=settings.bot_token,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
-    db = Database()
-    await db.connect()
-    await db.init()
+    storage = RedisStorage.from_url(settings.redis_url)
+    dp = Dispatcher(storage=storage)
 
-    dp = Dispatcher(storage=MemoryStorage())
-    # Сначала БД, затем флаг админа — оба доступны в хендлерах
-    dp.update.middleware(DbMiddleware(db))
-    dp.update.middleware(AdminMiddleware())
+    dp.update.middleware(SettingsMiddleware(settings))
+    dp.update.middleware(DbMiddleware(session_factory))
+    dp.update.middleware(AdminMiddleware(settings))
 
-    # Админ-роутер раньше пользовательского (пересечение /admin и фильтров)
-    dp.include_router(admin.router)
-    dp.include_router(user.router)
+    dp.include_router(setup_routers())
 
-    logging.info("Бот запущен (long polling).")
+    logging.info("Бот запущен (long polling)")
     try:
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
-        await db.close()
         await bot.session.close()
+        await engine.dispose()
 
 
 if __name__ == "__main__":
