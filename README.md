@@ -181,7 +181,7 @@ python main.py
 
 Это демо-репозиторий. Полная версия с исходным кодом доступна на Boosty:
 
-**👉 [boosty.to/botbase — 4 900 ₽](https://boosty.to/botbase/posts/49c557dd-467a-411e-b486-379940bd7944)**
+**👉 [boosty.to/botbase — 1 500 ₽](https://boosty.to/botbase/posts/49c557dd-467a-411e-b486-379940bd7944)**
 
 Что входит:
 - Весь исходный код без ограничений
